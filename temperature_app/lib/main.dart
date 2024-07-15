@@ -1,32 +1,37 @@
 import 'package:flutter/material.dart';
-
 void main() {
-  runApp(TemperatureConverterApp());
+  runApp(const TemperatureConverterApp());
 }
 
 class TemperatureConverterApp extends StatelessWidget {
+  const TemperatureConverterApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Temperature Converter',
+      title: 'Temperature Conversion App',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: TemperatureConverterPage(),
+      home: const TemperatureConverterPage(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
 
 class TemperatureConverterPage extends StatefulWidget {
+  const TemperatureConverterPage({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _TemperatureConverterPageState createState() => _TemperatureConverterPageState();
 }
 
 class _TemperatureConverterPageState extends State<TemperatureConverterPage> {
   bool isFahrenheitToCelsius = true;
-  TextEditingController _inputController = TextEditingController();
+  final TextEditingController _inputController = TextEditingController();
   String _result = '';
-  List<String> _conversionHistory = [];
+  final List<String> _conversionHistory = [];
   String _error = '';
 
   void _convertTemperature() {
@@ -43,12 +48,12 @@ class _TemperatureConverterPageState extends State<TemperatureConverterPage> {
 
     if (isFahrenheitToCelsius) {
       convertedTemperature = (inputTemperature - 32) * 5 / 9;
-      conversionText = '$inputTemperature °F = ${convertedTemperature.toStringAsFixed(2)} °C';
-      _result = '${convertedTemperature.toStringAsFixed(2)} °C';
+      conversionText = '$inputTemperature °F = ${convertedTemperature.toStringAsFixed(1)} °C';
+      _result = '${convertedTemperature.toStringAsFixed(1)} °C';
     } else {
       convertedTemperature = (inputTemperature * 9 / 5) + 32;
-      conversionText = '$inputTemperature °C = ${convertedTemperature.toStringAsFixed(2)} °F';
-      _result = '${convertedTemperature.toStringAsFixed(2)} °F';
+      conversionText = '$inputTemperature °C = ${convertedTemperature.toStringAsFixed(1)} °F';
+      _result = '${convertedTemperature.toStringAsFixed(1)} °F';
     }
 
     setState(() {
@@ -57,26 +62,40 @@ class _TemperatureConverterPageState extends State<TemperatureConverterPage> {
     });
   }
 
-  Widget _buildUnitButton(String label, bool isSelected, VoidCallback onPressed) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        foregroundColor: isSelected ? Colors.white : Colors.black, 
-        backgroundColor: isSelected ? Colors.blueAccent : Colors.grey[300],
-        textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        shape: RoundedRectangleBorder(
+  Widget _buildTempButtons() {
+    return Wrap(
+      alignment: WrapAlignment.center,
+      children: [
+        ToggleButtons(
+          isSelected: [isFahrenheitToCelsius, !isFahrenheitToCelsius],
+          onPressed: (int index) {
+            setState(() {
+              isFahrenheitToCelsius = index == 0;
+            });
+          },
+          color: Colors.black,
+          selectedColor: Colors.white,
+          fillColor: Colors.blueAccent,
           borderRadius: BorderRadius.circular(8),
+          children: const <Widget>[
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8.0),
+              child: Text('F to °C'),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8.0),
+              child: Text('°C to F'),
+            ),
+          ],
         ),
-      ),
-      onPressed: onPressed,
-      child: Text(label),
+      ],
     );
   }
 
-  void _navigateToHistoryPage() {
+  void _navigateToHistory() {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => ConversionHistoryPage(
+        builder: (context) => ConvertHistoryPage(
           conversionHistory: _conversionHistory,
         ),
       ),
@@ -89,7 +108,7 @@ class _TemperatureConverterPageState extends State<TemperatureConverterPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Center(
+        title: const Center(
           child: Text('Temperature Converter'),
         ),
         backgroundColor: Colors.blueAccent,
@@ -106,48 +125,8 @@ class _TemperatureConverterPageState extends State<TemperatureConverterPage> {
     return SingleChildScrollView(
       child: Column(
         children: <Widget>[
-          Text(
-            'Convert from',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              _buildUnitButton('Fahrenheit', isFahrenheitToCelsius, () {
-                setState(() {
-                  isFahrenheitToCelsius = true;
-                });
-              }),
-              _buildUnitButton('Celsius', !isFahrenheitToCelsius, () {
-                setState(() {
-                  isFahrenheitToCelsius = false;
-                });
-              }),
-            ],
-          ),
-          SizedBox(height: 20),
-          Text(
-            'to',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              _buildUnitButton('Celsius', !isFahrenheitToCelsius, () {
-                setState(() {
-                  isFahrenheitToCelsius = false;
-                });
-              }),
-              _buildUnitButton('Fahrenheit', isFahrenheitToCelsius, () {
-                setState(() {
-                  isFahrenheitToCelsius = true;
-                });
-              }),
-            ],
-          ),
-          SizedBox(height: 20),
+          _buildTempButtons(),
+          const SizedBox(height: 20),
           TextField(
             controller: _inputController,
             decoration: InputDecoration(
@@ -161,36 +140,37 @@ class _TemperatureConverterPageState extends State<TemperatureConverterPage> {
             ),
             keyboardType: TextInputType.number,
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           ElevatedButton(
             onPressed: _convertTemperature,
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.blueAccent,
-              padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-              textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
-            child: Text('Convert'),
+            child: const Text('Convert'),
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           Text(
             _result.isEmpty ? '' : 'Converted Temperature: $_result',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           ElevatedButton(
-            onPressed: _navigateToHistoryPage,
+            onPressed: _navigateToHistory,
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blueGrey,
-              padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-              textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              backgroundColor: Colors.deepPurple[200],
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
-            child: Text('View History'),
+            child: const Text('View History', style: TextStyle(color: Colors.white)),
+
           ),
         ],
       ),
@@ -201,48 +181,8 @@ class _TemperatureConverterPageState extends State<TemperatureConverterPage> {
     return SingleChildScrollView(
       child: Column(
         children: <Widget>[
-          Text(
-            'Convert from',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              _buildUnitButton('Fahrenheit', isFahrenheitToCelsius, () {
-                setState(() {
-                  isFahrenheitToCelsius = true;
-                });
-              }),
-              _buildUnitButton('Celsius', !isFahrenheitToCelsius, () {
-                setState(() {
-                  isFahrenheitToCelsius = false;
-                });
-              }),
-            ],
-          ),
-          SizedBox(height: 20),
-          Text(
-            'to',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              _buildUnitButton('Celsius', !isFahrenheitToCelsius, () {
-                setState(() {
-                  isFahrenheitToCelsius = false;
-                });
-              }),
-              _buildUnitButton('Fahrenheit', isFahrenheitToCelsius, () {
-                setState(() {
-                  isFahrenheitToCelsius = true;
-                });
-              }),
-            ],
-          ),
-          SizedBox(height: 20),
+          _buildTempButtons(),
+          const SizedBox(height: 20),
           TextField(
             controller: _inputController,
             decoration: InputDecoration(
@@ -256,36 +196,36 @@ class _TemperatureConverterPageState extends State<TemperatureConverterPage> {
             ),
             keyboardType: TextInputType.number,
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           ElevatedButton(
             onPressed: _convertTemperature,
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.blueAccent,
-              padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-              textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
-            child: Text('Convert'),
+            child: const Text('Convert'),
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           Text(
             _result.isEmpty ? '' : 'Converted Temperature: $_result',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           ElevatedButton(
-            onPressed: _navigateToHistoryPage,
+            onPressed: _navigateToHistory,
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.blueGrey,
-              padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-              textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
-            child: Text('View History'),
+            child: const Text('View History'),
           ),
         ],
       ),
@@ -293,16 +233,16 @@ class _TemperatureConverterPageState extends State<TemperatureConverterPage> {
   }
 }
 
-class ConversionHistoryPage extends StatelessWidget {
+class ConvertHistoryPage extends StatelessWidget {
   final List<String> conversionHistory;
 
-  ConversionHistoryPage({required this.conversionHistory});
+  const ConvertHistoryPage({super.key, required this.conversionHistory});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Conversion History'),
+        title: const Text('Conversion History'),
         backgroundColor: Colors.blueAccent,
       ),
       body: ListView.builder(
