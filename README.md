@@ -1,1 +1,2 @@
-# -Temperature_Conversion_app-
+# Temperature Conversion App
+# Celsius to Fahrenheits and vice versa~
