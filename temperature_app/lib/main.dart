@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 void main() {
-  runApp(const TemperatureConverterApp());
+  runApp(const TemperatureConversionApp());
 }
 
-class TemperatureConverterApp extends StatelessWidget {
-  const TemperatureConverterApp({super.key});
+class TemperatureConversionApp extends StatelessWidget {
+  const TemperatureConversionApp({super.key});
 
   @override
   Widget build(BuildContext context) {
