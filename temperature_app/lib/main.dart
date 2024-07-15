@@ -218,14 +218,14 @@ class _TemperatureConverterPageState extends State<TemperatureConverterPage> {
           ElevatedButton(
             onPressed: _navigateToHistory,
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blueGrey,
+              backgroundColor: Colors.deepPurple[200],
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
               textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
-            child: const Text('View History'),
+            child: const Text('View History', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
